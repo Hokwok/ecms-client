@@ -17,6 +17,11 @@ class EditProcessTask extends Component {
   handleCancel = () => {
     this.props.cancel()
   }
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
   render() {
     const { getFieldDecorator } = this.props.form
     const { confirmLoading } = this.state

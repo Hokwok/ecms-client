@@ -22,7 +22,7 @@ class processTaskManage extends Component {
           process_ae: '4',
           process_state: '1',
           process_time: '2021-10-30',
-          process_note: '无'
+          process_note: '测试'
         }, {
           pid: '002',
           process_code: '2021103002',
@@ -32,7 +32,7 @@ class processTaskManage extends Component {
           process_ae: '4',
           process_state: '1',
           process_time: '2021-10-30',
-          process_note: '无'
+          process_note: '测试'
         }, {
           pid: '003',
           process_code: '2021103003',
@@ -42,7 +42,7 @@ class processTaskManage extends Component {
           process_ae: '4',
           process_state: '0',
           process_time: '2021-10-30',
-          process_note: '无'
+          process_note: '测试'
         }
       ],
       isLoading: false,
