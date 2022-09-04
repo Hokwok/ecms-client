@@ -4,7 +4,10 @@ import { throttle } from '../../publicFunction'
 import Equipment from './equipment'
 import AddEquipment from './addEquipment'
 import './machineManage.less'
+import { machineManageUrl } from '../../dataModule/UrlList'
+import { Model } from '../../dataModule/testBone'
 
+const model = new Model()
 const { Option } = Select
 class MachineManage extends Component {
   constructor(props) {
@@ -34,27 +37,25 @@ class MachineManage extends Component {
   // 获得机床表
   getProcessMachineList(params) {
     // const me = this // 让this指向不会出错
-    // me.setState({ isLoading: true })
-    // model.fetch(
-    //     params,
-    //     getProcessTaskListUrl,
-    //     'post',
-    //     function(response) {
-    //       // console.log(response)
-    //         if (me.state.whetherTest === false) {
-    //             me.setState({
-    //                 isLoading: false,
-    //                 total: response.data.total,
-    //                 data: response.data.records,
-    //                 currentPage: params['currentPage']
-    //             })
-    //         }
-    //     },
-    //     function() {
-    //         message.warning('加载失败，请重试')
-    //     },
-    //     this.state.whetherTest
-    // )
+    model.fetch(
+        params,
+        machineManageUrl,
+        'get',
+        function(response) {
+          console.log(response.data.data[0])
+            // if (me.state.whetherTest === false) {
+            //   me.setState({
+            //     total: response.data.total,
+            //     data: response.data.records,
+            //     currentPage: params['currentPage']
+            //   })
+            // }
+        },
+        function() {
+            message.warning('加载失败，请重试')
+        },
+        this.state.whetherTest
+    )
   }
   // 机床类型搜索的获取
   handlemachinestype = (string) => {

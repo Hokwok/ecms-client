@@ -4,6 +4,7 @@ import { Button, Select, Popconfirm, Tooltip, Icon } from 'antd'
 import ProcessDataTable from './processDataTable'
 import AddProcessData from './addProcessData'
 import ProcessDesignModal from './processDesignModal'
+import ProcessDataVisualModal from './processDataVisual'
 import './processDataManage.less'
 
 const { Option } = Select
@@ -38,7 +39,8 @@ class processDataManage extends Component {
       size: 10,
       total: 0,
       addProcessDataVisible: false,
-      addProcessDesignVisible: false
+      addProcessDesignVisible: false,
+      showProcessDataVisible: false
     }
   }
   componentDidMount() {
@@ -160,7 +162,8 @@ class processDataManage extends Component {
   closeModal = () => {
     this.setState({
       addProcessDataVisible: false,
-      addProcessDesignVisible: false
+      addProcessDesignVisible: false,
+      showProcessDataVisible: false
     })
   }
   // 下载实验数据
@@ -170,9 +173,11 @@ class processDataManage extends Component {
   }
   // 可视化分析
   showAnsysModal = (record) => {
-    console.log(record)
+    this.setState({
+      showProcessDataVisible: true
+    })
     // replace跳转+携带params参数
-    this.props.history.replace(`/app/milling_visualize/${record.ed_code}`)
+    // this.props.history.replace(`/app/milling_visualize/${record.ed_code}`)
     // window.location.href = `${originalUrl}${downLoadPdfUrl}${record.dispatch_list_id}`
   }
   render() {
@@ -275,6 +280,11 @@ class processDataManage extends Component {
             addProcessDesignVisible={this.state.addProcessDesignVisible}
             cancel={this.closeModal}
             getParams = {this.getParams.bind(this)}
+          />
+          <ProcessDataVisualModal
+            whetherTest={whetherTest}
+            showProcessDataVisible={this.state.showProcessDataVisible}
+            cancel={this.closeModal}
           />
           <div className='dataTableWrapper'>
             <ProcessDataTable
