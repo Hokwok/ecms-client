@@ -38,7 +38,7 @@ class ProcessTaskTable extends Component {
                 showSizeChanger
                 pageSize={this.props.size}
                 pageSizeOptions={['10', '20', '30', '40']}
-                onChange={(e) => changePage(e)}
+                onChange={(page, pageSize) => changePage(page, pageSize)}
                 onShowSizeChange={(current, size) => changeSize(current, size)}
               />
              </div>

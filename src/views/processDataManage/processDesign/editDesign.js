@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Modal, Form, Input } from 'antd'
+import { Modal, Form, Input, message } from 'antd'
+import { experimentDesignUrl } from '../../../dataModule/UrlList'
+import { Model } from '../../../dataModule/testBone'
 
+const model = new Model()
 class EditDesign extends Component {
   constructor(props) {
     super(props)
@@ -16,7 +19,9 @@ class EditDesign extends Component {
   handleOk = () => {
     const { validateFields } = this.props.form
     validateFields() // 校验 格式等问题
+    var reg = new RegExp('-', 'g') // 去掉所有的'-'
     const params = {
+      pdsid: this.props.editInfo.key.replace(reg, ''),
       pd_n: this.state.pd_n,
       pd_vf: this.state.pd_vf,
       pd_ap: this.state.pd_ap,
@@ -25,35 +30,32 @@ class EditDesign extends Component {
     this.setState({
       confirmLoading: true
     })
-    // console.log(params)
     this.EditDesign(params)
   }
-  // fetch函数进行数据传输,fetch在reactjs中等同于 XMLHttpRequest
+
   EditDesign(params) {
-    // const me = this
-    // model.fetch(
-    //   params,
-    //   ClientUrl,
-    //   'post',
-    //   function() {
-    //     me.props.cancel(false)
-    //     me.setState({
-    //         confirmLoading: false
-    //     })
-    //     const item = me.props.getParams()
-    //     me.props.getCurrentPage(item)
-    //     message.success('创建成功')
-    //   },
-    //   function() {
-    //     message.warning('发送数据失败，请重试')
-    //     setTimeout(() => {
-    //         me.setState({
-    //           confirmLoading: false
-    //         })
-    //       }, 2000)
-    //   },
-    //   this.props.whetherTest
-    // )
+    const me = this
+    model.fetch(
+      params,
+      `${experimentDesignUrl}${me.props.expid}/`,
+      'put',
+      function() {
+        me.setState({
+          confirmLoading: false
+        })
+        me.props.afterOperatDesign()
+        message.success('修改实验设计成功')
+      },
+      function() {
+        message.warning('修改实验设计失败，请重试')
+        setTimeout(() => {
+          me.setState({
+            confirmLoading: false
+          })
+        }, 2000)
+      },
+      false
+    )
   }
   // 取消按钮事件
   handleCancel = () => {

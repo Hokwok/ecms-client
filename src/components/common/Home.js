@@ -16,7 +16,7 @@ export default class Home extends Component {
       const appComponent = <Redirect to='/app/machine_manage'/>
 
       return (
-          getCookie('mspa_user') === null ? loginComponent : appComponent
-        )
+        getCookie('mspa_user') === null ? loginComponent : appComponent
+      )
     }
 }

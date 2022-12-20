@@ -1,21 +1,95 @@
 import React, { Component } from 'react'
-import { Modal, Form, Input } from 'antd'
+import { Modal, Form, Input, message } from 'antd'
+import { processDataManageUrl } from '../../dataModule/UrlList'
+import { Model } from '../../dataModule/testBone'
 
+const model = new Model()
 class EditProcessTask extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      confirmLoading: false
+      confirmLoading: false,
+      process_code: '',
+      data_p: '',
+      data_sec: '',
+      data_ra_first: '',
+      data_ra_second: '',
+      data_fx_first: '',
+      data_fx_second: '',
+      data_fy_first: '',
+      data_fy_second: '',
+      data_fz_first: '',
+      data_fz_second: '',
+      data_mx_first: '',
+      data_mx_second: '',
+      data_my_first: '',
+      data_my_second: '',
+      data_mz_first: '',
+      data_mz_second: '',
+      data_sce: '',
+      data_mrr: '',
+      data_efficiency: '',
+      data_duration: ''
     }
   }
   // 添加后确定
-  handleOk = () => {
+  handleOk = (editInfo) => {
     const { validateFields } = this.props.form
     validateFields() // 校验 格式等问题
+    // console.log(editInfo)
+    const params = {
+      pid: editInfo.pid,
+      process_state: 1,
+      process_code: editInfo.process_code,
+      data_p: this.state.data_p,
+      data_sec: this.state.data_sec,
+      data_ra_first: this.state.data_ra_first,
+      data_ra_second: this.state.data_ra_second,
+      data_fx_first: this.state.data_fx_first,
+      data_fx_second: this.state.data_fx_second,
+      data_fy_first: this.state.data_fy_first,
+      data_fy_second: this.state.data_fy_second,
+      data_fz_first: this.state.data_fz_first,
+      data_fz_second: this.state.data_fz_second,
+      data_mx_first: this.state.data_mx_first,
+      data_mx_second: this.state.data_mx_second,
+      data_my_first: this.state.data_my_first,
+      data_my_second: this.state.data_my_second,
+      data_mz_first: this.state.data_mz_first,
+      data_mz_second: this.state.data_mz_second,
+      data_sce: this.state.data_sce,
+      data_mrr: this.state.data_mrr,
+      data_efficiency: this.state.data_efficiency,
+      data_duration: this.state.data_duration
+    }
+    this.setState({
+      confirmLoading: true
+    })
+    this.changeProcessState(params)
+  }
+  changeProcessState(params) {
+    const me = this
+    model.fetch(
+      params,
+      processDataManageUrl + `${params.pid}/`,
+      'put',
+      function() {
+        me.setState({
+          confirmLoading: false
+        })
+        me.props.cancel(false)
+        me.props.afterCreateOrEdit()
+        message.success('编辑成功')
+      },
+      function() {
+        message.error('编辑失败')
+      },
+      false
+    )
   }
   // 取消按钮事件
   handleCancel = () => {
-    this.props.cancel()
+    this.props.cancel(false)
   }
   handleChange = (e) => {
     this.setState({
@@ -38,9 +112,9 @@ class EditProcessTask extends Component {
     return (
       <div>
         <Modal
-          title='编辑加工数据'
+          title='编辑实验数据'
           visible={this.props.editProcessVisible} // 对话框是否可见  这个地方通过this.props.Visible 接收到父组件传过来的Visible
-          onOk={this.handleOk} // 点击确定回调
+          onOk={() => this.handleOk(editInfo)} // 点击确定回调
           confirmLoading={confirmLoading}
           onCancel={this.handleCancel} // 点击遮罩层或右上角叉或取消按钮的回调
           destroyOnClose={true} // 关闭时销毁 Modal 里的子元素  默认关闭后状态不会自动清空, 如果希望每次打开都是新内容，请设置 destroyOnClose

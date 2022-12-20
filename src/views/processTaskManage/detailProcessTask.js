@@ -28,79 +28,46 @@ class DetailProcessTask extends Component {
       data_mz_second: '',
       data_sce: '',
       data_mrr: '',
-      data_efficiency: '',
-      data_duration: ''
+      data_efficiency: ''
     }
   }
   componentDidUpdate(prevProps) {
-    if (this.props.editInfo !== prevProps.editInfo) {
-      const editInfo = this.props.editInfo
-      console.log(editInfo)
+    if (this.props.detailInfo !== prevProps.detailInfo) {
+      const detailInfo = this.props.detailInfo
       this.setState({
-        process_n: editInfo.process_n,
-        process_vf: editInfo.process_vf,
-        process_ap: editInfo.process_ap,
-        process_ae: editInfo.process_ae
+        process_n: detailInfo[0].process_n,
+        process_vf: detailInfo[0].process_vf,
+        process_ap: detailInfo[0].process_ap,
+        process_ae: detailInfo[0].process_ae,
+        data_p: detailInfo[0].pdata.data_p,
+        data_sec: detailInfo[0].pdata.data_sec,
+        data_ra_first: detailInfo[0].pdata.data_ra_first,
+        data_ra_second: detailInfo[0].pdata.data_ra_second,
+        data_fx_first: detailInfo[0].pdata.data_fx_first,
+        data_fx_second: detailInfo[0].pdata.data_fx_second,
+        data_fy_first: detailInfo[0].pdata.data_fy_first,
+        data_fy_second: detailInfo[0].pdata.data_fy_second,
+        data_fz_first: detailInfo[0].pdata.data_fz_first,
+        data_fz_second: detailInfo[0].pdata.data_fz_second,
+        data_mx_first: detailInfo[0].pdata.data_mx_first,
+        data_mx_second: detailInfo[0].pdata.data_mx_second,
+        data_my_first: detailInfo[0].pdata.data_my_first,
+        data_my_second: detailInfo[0].pdata.data_my_second,
+        data_mz_first: detailInfo[0].pdata.data_mz_first,
+        data_mz_second: detailInfo[0].pdata.data_mz_second,
+        data_sce: detailInfo[0].pdata.data_sce,
+        data_mrr: detailInfo[0].pdata.data_mrr,
+        data_efficiency: detailInfo[0].pdata.data_efficiency
       })
-      this.getProcessData(editInfo.pid)
     }
-  }
-  // 根据pid获取对应process_data的数据
-  getProcessData(pid) {
-    console.log(pid)
-    // 定义假数据
-    const data = {
-      data_p: '592',
-      data_sec: '444',
-      data_ra_first: '1.49',
-      data_ra_second: '1.54',
-      data_fx_first: '-5.03',
-      data_fx_second: '2.74',
-      data_fy_first: '2.52',
-      data_fy_second: '7.88',
-      data_fz_first: '10.77',
-      data_fz_second: '8.86',
-      data_mx_first: '-0.425',
-      data_mx_second: '-1.07',
-      data_my_first: '-0.795',
-      data_my_second: '1.26',
-      data_mz_first: '0.46',
-      data_mz_second: '-0.55',
-      data_sce: '测试',
-      data_mrr: '1.33',
-      data_efficiency: '测试',
-      data_duration: '测试时长'
-    }
-    this.setState({
-      data_p: data.data_p,
-      data_sec: data.data_sec,
-      data_ra_first: data.data_ra_first,
-      data_ra_second: data.data_ra_second,
-      data_fx_first: data.data_fx_first,
-      data_fx_second: data.data_fx_second,
-      data_fy_first: data.data_fy_first,
-      data_fy_second: data.data_fy_second,
-      data_fz_first: data.data_fz_first,
-      data_fz_second: data.data_fz_second,
-      data_mx_first: data.data_mx_first,
-      data_mx_second: data.data_mx_second,
-      data_my_first: data.data_my_first,
-      data_my_second: data.data_my_second,
-      data_mz_first: data.data_mz_first,
-      data_mz_second: data.data_mz_second,
-      data_sce: data.data_sce,
-      data_mrr: data.data_mrr,
-      data_efficiency: data.data_efficiency,
-      data_duration: data.data_duration
-    })
   }
   // 取消按钮事件
   handleCancel = () => {
-    this.props.cancel()
+    this.props.cancel(false)
   }
   // 确认按钮事件
   handleOk = () => {
-    this.props.cancel()
+    this.props.cancel(false)
   }
   render() {
     const { process_n,
@@ -125,8 +92,7 @@ class DetailProcessTask extends Component {
     data_mz_second,
     data_sce,
     data_mrr,
-    data_efficiency,
-    data_duration } = this.state
+    data_efficiency } = this.state
     return (
       <div>
         <Modal
@@ -161,7 +127,6 @@ class DetailProcessTask extends Component {
             <Descriptions.Item label='SCE'>{data_sce}(J/mm³)</Descriptions.Item>
             <Descriptions.Item label='MRR'>{data_mrr}(mm³/s)</Descriptions.Item>
             <Descriptions.Item label='能量效率'>{data_efficiency}</Descriptions.Item>
-            <Descriptions.Item label='加工时长'>{data_duration}(s)</Descriptions.Item>
           </Descriptions>
         </Modal>
       </div>

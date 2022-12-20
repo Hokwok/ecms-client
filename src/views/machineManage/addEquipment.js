@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Modal, Form, Input, Select } from 'antd'
+import { Modal, Form, Input, Select, message } from 'antd'
+import { machineManageUrl } from '../../dataModule/UrlList'
+import { Model } from '../../dataModule/testBone'
 
+const model = new Model()
 const { Option } = Select
 class AddEquipment extends Component {
   constructor(props) {
@@ -14,36 +17,38 @@ class AddEquipment extends Component {
       max_rotate: '',
       max_speed: '',
       max_load: '',
-      equipment_status: ''
+      equipment_status: '',
+      equipment_pic: '/static/media/machine.7ce6aff5.png'
     }
   }
 
-  // fetch函数进行数据传输,fetch在reactjs中等同于 XMLHttpRequest
+  // 添加新设备
   createNewEquip(params) {
-    // const me = this
-    // model.fetch(
-    //   params,
-    //   ClientUrl,
-    //   'post',
-    //   function() {
-    //     me.props.cancel(false)
-    //     me.setState({
-    //         confirmLoading: false
-    //     })
-    //     const item = me.props.getParams()
-    //     me.props.getCurrentPage(item)
-    //     message.success('创建成功')
-    //   },
-    //   function() {
-    //     message.warning('发送数据失败，请重试')
-    //     setTimeout(() => {
-    //         me.setState({
-    //           confirmLoading: false
-    //         })
-    //       }, 2000)
-    //   },
-    //   this.props.whetherTest
-    // )
+    // console.log(params)
+    const me = this
+    model.fetch(
+      params,
+      machineManageUrl,
+      'post',
+      function() {
+        me.props.cancel(false)
+        me.setState({
+            confirmLoading: false
+        })
+        me.props.afterCreateOrEdit()
+        message.success('创建成功')
+      },
+      function(error) {
+        console.log(error)
+        message.warning('创建失败，请重试')
+        setTimeout(() => {
+            me.setState({
+              confirmLoading: false
+            })
+          }, 2000)
+      },
+      this.props.whetherTest
+    )
   }
   // 添加后确定
   handleOk = () => {
@@ -57,12 +62,12 @@ class AddEquipment extends Component {
       max_rotate: this.state.max_rotate,
       max_speed: this.state.max_speed,
       max_load: this.state.max_load,
-      equipment_status: this.state.equipment_status
+      equipment_status: this.state.equipment_status,
+      equipment_pic: this.state.equipment_pic
     }
     this.setState({
       confirmLoading: true
     })
-    console.log(params)
     this.createNewEquip(params)
   }
   // 取消按钮事件
@@ -116,10 +121,10 @@ class AddEquipment extends Component {
                   label='设备编号'
                   colon
               >
-                  {getFieldDecorator('equipment_code', {
+                  {getFieldDecorator('equipment_name', {
                   rules: [{ required: true, message: '请输入设备编号' }] // getFieldDecorator()  自定义校验方法,设置此项为必填项
               })(
-                  <Input name='equipment_code' onChange={this.handleChange}/> // onChange	输入框内容变化时的回调 value	输入框内容
+                  <Input name='equipment_name' onChange={this.handleChange}/> // onChange	输入框内容变化时的回调 value	输入框内容
               )}
               </Form.Item>
 
@@ -127,10 +132,10 @@ class AddEquipment extends Component {
                   label='设备名称'
                   colon
               >
-                  {getFieldDecorator('equipment_name', {
+                  {getFieldDecorator('equipment_code', {
                   rules: [{ required: true, message: '请输入设备名称' }] // getFieldDecorator()  自定义校验方法,设置此项为必填项
               })(
-                  <Input name='equipment_name' onChange={this.handleChange}/> // onChange	输入框内容变化时的回调 value	输入框内容
+                  <Input name='equipment_code' onChange={this.handleChange}/> // onChange	输入框内容变化时的回调 value	输入框内容
               )}
               </Form.Item>
 

@@ -9,9 +9,12 @@ class ParetoChart extends Component {
       myChart: null,
       option: {
         title: {
-          text: '3维立体图',
+          text: 'Pareto最优边界图',
           left: 'center',
-          align: 'right'
+          align: 'right',
+          textStyle: {
+            fontSize: 15
+          }
         },
         grid: {
           top: 0,
@@ -34,19 +37,19 @@ class ParetoChart extends Component {
           show: false
         },
         xAxis3D: {
-          name: 'X轴',
+          name: 'T(s)',
           type: 'value',
           min: 0,
           max: 3
         },
         yAxis3D: {
-          name: 'Y轴',
+          name: 'Ra(μm)',
           type: 'value',
           min: 0,
           max: 3
         },
         zAxis3D: {
-          name: 'Z轴',
+          name: 'SEC(J/mm³)',
           type: 'value',
           min: 0,
           max: 3

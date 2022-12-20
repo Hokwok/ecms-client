@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Modal, Form, Input } from 'antd'
+import { Modal, Form, Input, message } from 'antd'
+import { experimentDesignUrl } from '../../../dataModule/UrlList'
+import { Model } from '../../../dataModule/testBone'
 
+const model = new Model()
 class AddDesign extends Component {
   constructor(props) {
     super(props)
@@ -14,32 +17,30 @@ class AddDesign extends Component {
     }
   }
 
-  // fetch函数进行数据传输,fetch在reactjs中等同于 XMLHttpRequest
   createNewDesign(params) {
-    // const me = this
-    // model.fetch(
-    //   params,
-    //   ClientUrl,
-    //   'post',
-    //   function() {
-    //     me.props.cancel(false)
-    //     me.setState({
-    //         confirmLoading: false
-    //     })
-    //     const item = me.props.getParams()
-    //     me.props.getCurrentPage(item)
-    //     message.success('创建成功')
-    //   },
-    //   function() {
-    //     message.warning('发送数据失败，请重试')
-    //     setTimeout(() => {
-    //         me.setState({
-    //           confirmLoading: false
-    //         })
-    //       }, 2000)
-    //   },
-    //   this.props.whetherTest
-    // )
+    const me = this
+    model.fetch(
+      params,
+      `${experimentDesignUrl}${me.props.expid}/`,
+      'post',
+      function() {
+        me.setState({
+          confirmLoading: false,
+          note: '水平1'
+        })
+        me.props.afterOperatDesign()
+        message.success('添加实验设计成功')
+      },
+      function() {
+        message.warning('添加实验设计失败，请重试')
+        setTimeout(() => {
+          me.setState({
+            confirmLoading: false
+          })
+        }, 2000)
+      },
+      false
+    )
   }
   // 添加后确定
   handleOk = () => {
@@ -50,12 +51,11 @@ class AddDesign extends Component {
       pd_vf: this.state.pd_vf,
       pd_ap: this.state.pd_ap,
       pd_ae: this.state.pd_ae,
-      note: this.state.note
+      pds_note: this.state.note
     }
     this.setState({
       confirmLoading: true
     })
-    console.log(params)
     this.createNewDesign(params)
   }
   // 取消按钮事件

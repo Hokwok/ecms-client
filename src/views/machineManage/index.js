@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Select, Button } from 'antd'
+import { Select, Button, message } from 'antd'
 import { throttle } from '../../publicFunction'
 import Equipment from './equipment'
 import AddEquipment from './addEquipment'
@@ -16,8 +16,9 @@ class MachineManage extends Component {
       whetherTest: false, // 是否是测试  true为是 false为否
       search: false, // 是否搜索
       addEquipVisible: false, // 添加新设备框
-      search_equipment_type: '', // 搜索框 机床类型
-      search_equipment_status: '', // 搜索框 设备状态
+      equipment_type: '', // 搜索框 机床类型
+      equipment_status: '', // 搜索框 设备状态
+      selectData: [], // 获取的数据
       keyValue: '' // 类型和设备状态的keyValue，用于重置
     }
   }
@@ -26,81 +27,109 @@ class MachineManage extends Component {
 		this.getProcessMachineList(params)
 	}
   // 分页 搜索用
-  getParams(search_equipment_type = null, search_equipment_status = null) {
+  getParams(equipment_type = '', equipment_status = '') {
     let params = {}
     params = {
-      search_equipment_type,
-      search_equipment_status
+      equipment_type,
+      equipment_status
     }
+    // console.log(params)
     return params
   }
   // 获得机床表
   getProcessMachineList(params) {
-    // const me = this // 让this指向不会出错
+    const me = this // 让this指向不会出错
     model.fetch(
-        params,
-        machineManageUrl,
-        'get',
-        function(response) {
-          console.log(response.data.data[0])
-            // if (me.state.whetherTest === false) {
-            //   me.setState({
-            //     total: response.data.total,
-            //     data: response.data.records,
-            //     currentPage: params['currentPage']
-            //   })
-            // }
-        },
-        function() {
-            message.warning('加载失败，请重试')
-        },
-        this.state.whetherTest
+      params,
+      machineManageUrl,
+      'get',
+      function(response) {
+        // console.log(response.data)
+        response.data.data.map(item => {
+          if (item.equipment_type === '0') {
+            item.equipment_type = '立式加工中心'
+          } else if (item.equipment_type === '1') {
+            item.equipment_type = '数控铣床'
+          }
+          return item
+        })
+        if (me.state.whetherTest === false) {
+          me.setState({
+            selectData: response.data.data
+          })
+        }
+      },
+      function() {
+          message.warning('加载失败，请重试')
+      },
+      this.state.whetherTest
     )
   }
+  // 保持创建，编辑之后搜索条件不变和页面刷新
+  afterCreateOrEdit = () => {
+    let [equipment_type, equipment_status] = ['', '']
+    if (this.state.search === true) {
+      equipment_type = this.state.equipment_type
+      equipment_status = this.state.equipment_status
+    }
+    const params = this.getParams(equipment_type, equipment_status)
+    this.getProcessMachineList(params)
+  }
+
   // 机床类型搜索的获取
   handlemachinestype = (string) => {
-    this.setState({ search_equipment_type: string })
+    this.setState({ equipment_type: string })
     // console.log(parseInt(string, 0))
   }
   // 设备状态的获取
   handlestatus = (string) => {
-    this.setState({ search_equipment_status: string })
+    this.setState({ equipment_status: string })
     // console.log(parseInt(string, 0))
   }
   // 搜索
   searchInfo = throttle(() => {
     this.setState({ search: true })
-    const { search_equipment_type, search_equipment_status } = this.state
-    const params = this.getParams(search_equipment_type, search_equipment_status)
-    console.log(params)
+    const { equipment_type, equipment_status } = this.state
+    const params = this.getParams(equipment_type, equipment_status)
+    // console.log(params)
     this.handleSearch(params)
   })
   // 获取搜索后数据
   handleSearch = (params) => {
-    // const me = this
-		// model.fetch(
-		// 	params,
-		// 	getProcessTaskSearchUrl,
-		// 	'get',
-		// 	function(res) {
-		// 		// console.log(res.data)
-		// 		me.setState({
-		// 			data: res.data
-		// 		})
-		// 	},
-		// 	function() {
-		// 		message.error('数据获取失败，请刷新页面！')
-		// 	},
-		// 	false
-		// )
+    const me = this
+		model.fetch(
+			params,
+			machineManageUrl,
+			'get',
+			function(res) {
+				// console.log(res.data)
+        res.data.data.map(item => {
+          if (item.equipment_type === '0') {
+            item.equipment_type = '立式加工中心'
+          } else if (item.equipment_type === '1') {
+            item.equipment_type = '数控铣床'
+          }
+          return item
+        })
+        if (me.state.whetherTest === false) {
+          me.setState({
+            selectData: res.data.data
+          })
+        }
+			},
+			function() {
+				message.error('数据获取失败，请刷新页面！')
+			},
+			false
+		)
   }
   //  重置按钮
   handleReset = () => {
     const params = this.getParams()
 		this.getProcessMachineList(params)
     this.setState({
-      search_equipment_type: '',
-      search_equipment_status: '',
+      equipment_type: '',
+      equipment_status: '',
       keyValue: new Date(),
       search: false
     })
@@ -125,48 +154,10 @@ class MachineManage extends Component {
       groups[value] = groups[value] || []
       groups[value].push(c)
     })
-    // console.log(groups)
     return groups
   }
   render() {
-    const { keyValue, addEquipVisible, whetherTest } = this.state
-    const selectData = [
-      {
-        eid: '1',
-        equipment_code: '001',
-        equipment_name: 'VMC850E',
-        equipment_type: '立式加工中心',
-        equipment_status: '1'
-      },
-      {
-        eid: '2',
-        equipment_code: '002',
-        equipment_name: 'VMC850E',
-        equipment_type: '立式加工中心',
-        equipment_status: '0'
-      },
-      {
-        eid: '3',
-        equipment_code: '003',
-        equipment_name: 'VMC850E',
-        equipment_type: '立式加工中心',
-        equipment_status: '2'
-      },
-      {
-        eid: '4',
-        equipment_code: '004',
-        equipment_name: 'xk5030',
-        equipment_type: '数控铣床',
-        equipment_status: '1'
-      },
-      {
-        eid: '5',
-        equipment_code: '005',
-        equipment_name: 'xk5030',
-        equipment_type: '数控铣床',
-        equipment_status: '0'
-      }
-    ]
+    const { keyValue, addEquipVisible, whetherTest, selectData } = this.state
     const Newdata = this.getGroup(selectData, 'equipment_type')
     return (
       <div>
@@ -180,11 +171,9 @@ class MachineManage extends Component {
             className='machinestyle'
             onSelect={(string) => this.handlemachinestype(string)}
             key={ keyValue }
-            allowClear
           >
             <Option key='0' value='0'>立式加工中心</Option>
             <Option key='1' value='1'>数控铣床</Option>
-            <Option key='2' value='2'>数控钻床</Option>
           </Select>
           <div className='search-status'>设备状态:</div>
           <div className='status'>
@@ -192,7 +181,6 @@ class MachineManage extends Component {
               className='machinestatus'
               onSelect={(string) => this.handlestatus(string)}
               key={ keyValue }
-              allowClear
             >
               <Option key='0' value='0'>停运</Option>
               <Option key='1' value='1'>在线</Option>
@@ -214,25 +202,14 @@ class MachineManage extends Component {
           addEquipVisible = { addEquipVisible }
           cancel={this.closeModal}
           getParams = {this.getParams.bind(this)}
+          afterCreateOrEdit={ this.afterCreateOrEdit }
         />
-        {/* <div className='machine_content'>
-          <div className='machineStyle'>立式加工中心</div>
-          <div className='line-bottom'></div>
-          <Equipment equipment_code={ 'VMC850E-001' } client_unit={ '立式加工中心' } status={ '1' } />
-          <Equipment equipment_code={ 'VMC850E-002' } client_unit={ '立式加工中心' } status={ '0' } />
-          <Equipment equipment_code={ 'VMC850E-003' } client_unit={ '立式加工中心' } status={ '2' } />
-        </div>
-        <div className='machine_content'>
-          <div className='machineStyle'>数控铣床</div>
-          <div className='line-bottom'></div>
-          <Equipment equipment_code={ 'xk5030-004' } client_unit={ '数控铣床' } status={ '1' } />
-        </div> */}
         { Object.keys(Newdata).map((key, index) => {
             return <div key={ index } className='machine_content'>
               <div className='machineStyle' >{ key }</div>
               <div className='line-bottom'></div>
               { Newdata[key].map((item, index) => {
-                  return <Equipment key={ index } eid={ item.eid } equipment_desc={ item.equipment_name + '-' + item.equipment_code } equipment_type={ item.equipment_type } equipment_status={ item.equipment_status } />
+                  return <Equipment key={ index } eid={ item.eid } equipment_pic={ item.equipment_pic } equipment_desc={ item.equipment_code + '-' + item.equipment_name } equipment_type={ item.equipment_type } equipment_status={ item.equipment_status } />
                 }) }
             </div>
           })

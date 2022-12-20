@@ -1,43 +1,57 @@
-import { Button } from 'antd'
+import { Button, message } from 'antd'
 import React, { Component } from 'react'
 import DesignTable from './designTable'
 import AddDesign from './addDesign'
 import EditDesign from './editDesign'
+import { experimentDesignUrl } from '../../../dataModule/UrlList'
+import { Model } from '../../../dataModule/testBone'
+import Axios from 'axios'
 
+const model = new Model()
 class ProcessDesignIndex extends Component {
     constructor(props) {
         super(props)
         this.state = {
-          data: [
-            {
-              pdid: '001',
-              pd_n: '500',
-              pd_vf: '100',
-              pd_ap: '0.2',
-              pd_ae: '4',
-              note: '水平1'
-            }, {
-              pdid: '002',
-              pd_n: '1000',
-              pd_vf: '140',
-              pd_ap: '0.3',
-              pd_ae: '6',
-              note: '水平2'
-            }, {
-              pdid: '003',
-              pd_n: '1500',
-              pd_vf: '180',
-              pd_ap: '0.4',
-              pd_ae: '8',
-              note: '水平3'
-            }
-          ], // 表格数据
+          expid: '', // 该实验的id
+          data: [], // 表格数据
           isLoading: false, // 是否加载
           addProcessDesignVisible: false,
           editProcessDesignVisible: false,
           editInfo: ''
         }
     }
+
+    componentDidMount() {
+      this.getProcessDesign(this.props.record.expid)
+    }
+
+    getProcessDesign(expid) {
+      const me = this // 让this指向不会出错
+      me.setState({ isLoading: true })
+      model.fetch(
+        '',
+        `${experimentDesignUrl}${expid}`,
+        'get',
+        function(response) {
+          me.setState({
+            expid,
+            isLoading: false,
+            total: response.data.count,
+            data: response.data.data.sort((a, b) => a.pd_n - b.pd_n)
+          })
+        },
+        function() {
+          message.warning('加载失败，请重试')
+        },
+        false
+      )
+    }
+
+    afterOperatDesign = () => {
+      this.getProcessDesign(this.state.expid)
+      this.closeModal()
+    }
+
     showAddDesignModal = () => {
       this.setState({
         addProcessDesignVisible: true
@@ -60,24 +74,34 @@ class ProcessDesignIndex extends Component {
           editInfo: record
         })
       }
-      // console.log(record)
     }
-    // 删除水平
-    deleteDesignInfo = (record) => {
-      console.log(record)
+    // 删除设计水平
+    deleteDesignInfo = (pdsid) => {
+      const { expid } = this.state
+      var reg = new RegExp('-', 'g') // 去掉所有的'-'
+      Axios.delete(`${experimentDesignUrl}${expid}/`, {
+        data: {
+          pdsid: pdsid.replace(reg, '')
+        }
+      }).then(res => {
+        this.getProcessDesign(expid)
+        message.success('删除成功！')
+      }).catch(res => {
+        message.warning('删除失败，请重试')
+      })
     }
     render() {
-      const { data, isLoading, addProcessDesignVisible, editProcessDesignVisible, editInfo } = this.state
+      const { data, isLoading, addProcessDesignVisible, editProcessDesignVisible, editInfo, expid } = this.state
       const tableDate = []
       if (data !== undefined && data !== []) {
         data.map((item) => {
           tableDate.push({
-            key: item.pdid,
+            key: item.pdsid,
             pd_n: item.pd_n,
             pd_vf: item.pd_vf,
             pd_ap: item.pd_ap,
             pd_ae: item.pd_ae,
-            note: item.note
+            note: item.pds_note
           })
         return null
         })
@@ -90,13 +114,15 @@ class ProcessDesignIndex extends Component {
           <AddDesign
             addProcessDesignVisible = { addProcessDesignVisible }
             cancel = { this.closeModal }
+            expid = { expid }
+            afterOperatDesign = { this.afterOperatDesign }
           />
           <EditDesign
             editProcessDesignVisible = { editProcessDesignVisible }
             cancel={ this.closeModal }
             editInfo={ editInfo }
-            // getParams = {this.getParams.bind(this)}
-            // getCurrentPage = {this.getCurrentPage.bind(this)}
+            expid = { expid }
+            afterOperatDesign = { this.afterOperatDesign }
           />
           <div>
             <DesignTable

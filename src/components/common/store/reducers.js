@@ -7,10 +7,9 @@ import MachineManage from '../../../views/machineManage'
 import MachineMonitor from '../../../views/machineMonitor'
 import ProcessTaskManage from '../../../views/processTaskManage'
 import ProcessDataManage from '../../../views/processDataManage'
-import Visualize from '../../../views/machineVisualize'
 import EcmAnalysis from '../../../views/ncCodeAnalysis/ecmAnalysis'
 import EcmPredict from '../../../views/ncCodeAnalysis/ecmPredict'
-import PathOpt from '../../../views/ncCodeAnalysis/pathopt'
+// import PathOpt from '../../../views/ncCodeAnalysis/pathopt'
 import ParaOpt from '../../../views/ncCodeAnalysis/paraopt'
 
 const defaultState = fromJS({
@@ -43,20 +42,8 @@ const defaultState = fromJS({
       }, {
         routerDom: <Route key={'/app/process_data_manage'} exact path={'/app/process_data_manage'} component={ (props) => <ProcessDataManage { ...props }/> } />,
         link: '/app/process_data_manage',
-        title: '加工数据管理',
+        title: '实验数据管理',
         key: '/app/process_data_manage',
-        child: []
-      }]
-    }, {
-      routerDom: null,
-      link: '',
-      title: '可视化分析',
-      key: 'app3',
-      child: [{
-        routerDom: <Route key={'/app/milling_visualize'} exact path={'/app/milling_visualize'} component={ (props) => <Visualize { ...props }/> } />,
-        link: '/app/milling_visualize',
-        title: '铣削数据可视化',
-        key: '/app/milling_visualize',
         child: []
       }]
     }, {
@@ -77,18 +64,19 @@ const defaultState = fromJS({
         key: '/app/ecm_predict',
         child: []
       }, {
-        routerDom: <Route key={'/app/pathopt'} exact path={'/app/pathopt'} component={ (props) => <PathOpt { ...props }/> } />,
-        link: '/app/pathopt',
-        title: '路径优化',
-        key: '/app/pathopt',
-        child: []
-      }, {
         routerDom: <Route key={'/app/paraopt'} exact path={'/app/paraopt'} component={ (props) => <ParaOpt { ...props }/> } />,
         link: '/app/paraopt',
         title: '参数优化',
         key: '/app/paraopt',
         child: []
       }]
+      // {
+      //   routerDom: <Route key={'/app/pathopt'} exact path={'/app/pathopt'} component={ (props) => <PathOpt { ...props }/> } />,
+      //   link: '/app/pathopt',
+      //   title: '路径优化',
+      //   key: '/app/pathopt',
+      //   child: []
+      // }
     }
   ]
 })

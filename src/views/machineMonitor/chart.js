@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import * as echarts from 'echarts'
-// import store from '../../../store/index'
-import { monitorInfoUrl } from '../../dataModule/UrlList'
-import { Model } from '../../dataModule/testBone'
+// import { monitorInfoUrl } from '../../dataModule/UrlList'
+import Axios from 'axios'
+// import { Model } from '../../dataModule/testBone'
 
-const model = new Model()
-
+// const model = new Model()
+const monitorInfoUrl = 'http://127.0.0.1:8001/api/monitor/'
 class MonitorChart extends Component {
   constructor(props) {
     super(props)
@@ -73,7 +73,6 @@ class MonitorChart extends Component {
     me.setState({
       myChart: myChart
     })
-    // console.log(me.state.id)
     this.timer = setInterval(function() {
       const data1 = me.state.option.series[0].data
       const id = me.state.id
@@ -81,25 +80,35 @@ class MonitorChart extends Component {
       const tid = id + 1
       // 11
       const url = `${monitorInfoUrl}${tid}/`
-      model.fetch(
-        {},
-        url,
-        'get',
-        function(response) {
-          // console.log(response.data)
-          const expid = response.data['id']
-          const extime = response.data['time']
-          const extimell = new Date(extime)
-          const exppower = response.data['power']
-          const temp = { name: extimell.toString(), value: [expid, parseInt(exppower, 10)] }
-          // console.log(temp)
-          data1.push(temp)
-        },
-        function() {
-            console.log('加载失败，请重试')
-        },
-        false
-      )
+      // 方法1：Axios
+      Axios.get(url, {}).then(response => {
+        const expid = response.data['id']
+        const extime = response.data['time']
+        const extimell = new Date(extime)
+        const exppower = response.data['power']
+        const temp = { name: extimell.toString(), value: [expid, parseInt(exppower, 10)] }
+        data1.push(temp)
+      }).catch(response => {
+        console.log('加载失败，请重试')
+      })
+      // 方法2：使用model
+      // model.fetch(
+      //   {},
+      //   url,
+      //   'get',
+      //   function(response) {
+      //     const expid = response.data['id']
+      //     const extime = response.data['time']
+      //     const extimell = new Date(extime)
+      //     const exppower = response.data['power']
+      //     const temp = { name: extimell.toString(), value: [expid, parseInt(exppower, 10)] }
+      //     data1.push(temp)
+      //   },
+      //   function() {
+      //     console.log('加载失败，请重试')
+      //   },
+      //   false
+      // )
       // 11
       me.setState({
         id: tid,
@@ -122,47 +131,69 @@ class MonitorChart extends Component {
   getMonitorData() {
     const url = `${monitorInfoUrl}${0}/`
     const we = this
-    model.fetch(
-        {},
-        url,
-        'get',
-        function(response) {
-          console.log(response.data)
-          const data = []
-          for (var i = 0; i < response.data.length; i++) {
-            // console.log(data)
-            const expid = response.data[i]['id']
-            // console.log(expid)
-            const extime = response.data[i]['time']
-            const extimell = new Date(extime)
-            const exppower = response.data[i]['power']
-            // parseFloat(exppower)
-            const exp = { name: extimell.toString(), value: [expid, parseInt(exppower, 10)] }
-            // console.log(expid)
-            data.push(exp)
-            // console.log(data)
-          }
-          // console.log(data)
-          we.setState({
-            datafirst: data,
-            option: {
-              ...we.state.option,
-              series: [
-                {
-                  name: 'Fake Data',
-                  type: 'line',
-                  showSymbol: false,
-                  data: data
-                }
-              ]
+    // 方法1：Axios
+    Axios.get(url, {}).then(response => {
+      const data = []
+      for (var i = 0; i < response.data.length; i++) {
+        const expid = response.data[i]['id']
+        const extime = response.data[i]['time']
+        const extimell = new Date(extime)
+        const exppower = response.data[i]['power']
+        const exp = { name: extimell.toString(), value: [expid, parseInt(exppower, 10)] }
+        data.push(exp)
+      }
+      we.setState({
+        datafirst: data,
+        option: {
+          ...we.state.option,
+          series: [
+            {
+              name: 'Fake Data',
+              type: 'line',
+              showSymbol: false,
+              data: data
             }
-          })
-        },
-        function() {
-            console.log('加载失败，请重试')
-        },
-        false
-    )
+          ]
+        }
+      })
+    }).catch(response => {
+      console.log('加载失败，请重试')
+    })
+    // 方法2：使用model
+    // model.fetch(
+    //   {},
+    //   url,
+    //   'get',
+    //   function(response) {
+    //     const data = []
+    //     for (var i = 0; i < response.data.length; i++) {
+    //       const expid = response.data[i]['id']
+    //       const extime = response.data[i]['time']
+    //       const extimell = new Date(extime)
+    //       const exppower = response.data[i]['power']
+    //       const exp = { name: extimell.toString(), value: [expid, parseInt(exppower, 10)] }
+    //       data.push(exp)
+    //     }
+    //     we.setState({
+    //       datafirst: data,
+    //       option: {
+    //         ...we.state.option,
+    //         series: [
+    //           {
+    //             name: 'Fake Data',
+    //             type: 'line',
+    //             showSymbol: false,
+    //             data: data
+    //           }
+    //         ]
+    //       }
+    //     })
+    //   },
+    //   function() {
+    //     console.log('加载失败，请重试')
+    //   },
+    //   false
+    // )
   }
 
   componentWillUnmount() {

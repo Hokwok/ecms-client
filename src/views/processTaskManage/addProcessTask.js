@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Modal, DatePicker, Form, Input } from 'antd'
+import { Modal, DatePicker, Form, Input, message } from 'antd'
+import { processManageUrl } from '../../dataModule/UrlList'
+import { Model } from '../../dataModule/testBone'
 
+const model = new Model()
 class AddProcessTask extends Component {
   constructor(props) {
     super(props)
@@ -13,50 +16,57 @@ class AddProcessTask extends Component {
       process_ae: '',
       process_state: '0', // 默认 未开始 状态
       process_time: '',
-      process_note: ''
+      process_note: '无'
     }
   }
 
   // fetch函数进行数据传输,fetch在reactjs中等同于 XMLHttpRequest
   createNewProcess(params) {
-    // const me = this
-    // model.fetch(
-    //   params,
-    //   ClientUrl,
-    //   'post',
-    //   function() {
-    //     me.props.cancel(false)
-    //     me.setState({
-    //         confirmLoading: false
-    //     })
-    //     const item = me.props.getParams()
-    //     me.props.getCurrentPage(item)
-    //     message.success('创建成功')
-    //   },
-    //   function() {
-    //     message.warning('发送数据失败，请重试')
-    //     setTimeout(() => {
-    //         me.setState({
-    //           confirmLoading: false
-    //         })
-    //       }, 2000)
-    //   },
-    //   this.props.whetherTest
-    // )
+    // console.log(params)
+    const me = this
+    model.fetch(
+      params,
+      processManageUrl,
+      'post',
+      function(res) {
+        // console.log(res)
+        me.props.changeCurrentPage(1)
+        me.props.cancel(false)
+        me.setState({
+          confirmLoading: false
+        })
+        me.props.afterCreateOrEdit()
+        message.success('添加加工任务成功')
+      },
+      function(error) {
+        // console.log(error.response.data)
+        if (error.response.data.process_code) {
+          message.warning('加工编号已存在，请重新输入！')
+        } else {
+          message.warning('添加加工任务失败，请重试')
+        }
+        setTimeout(() => {
+            me.setState({
+              confirmLoading: false
+            })
+          }, 2000)
+      },
+      this.props.whetherTest
+    )
   }
   // 添加后确定
   handleOk = () => {
     const { validateFields } = this.props.form
     validateFields() // 校验 格式等问题
     const params = {
-        process_code: this.state.process_code,
-        process_n: this.state.process_n,
-        process_vf: this.state.process_vf,
-        process_ap: this.state.process_ap,
-        process_ae: this.state.process_ae,
-        process_state: this.state.process_state,
-        process_time: this.state.process_time,
-        process_note: this.state.process_note
+      process_code: this.state.process_code,
+      process_n: this.state.process_n,
+      process_vf: this.state.process_vf,
+      process_ap: this.state.process_ap,
+      process_ae: this.state.process_ae,
+      process_state: this.state.process_state,
+      process_time: this.state.process_time,
+      process_note: this.state.process_note
     }
     this.setState({
       confirmLoading: true
@@ -66,7 +76,7 @@ class AddProcessTask extends Component {
   }
   // 取消按钮事件
   handleCancel = () => {
-    this.props.cancel()
+    this.props.cancel(false)
   }
 
   handleChange = (e) => {
@@ -76,8 +86,9 @@ class AddProcessTask extends Component {
   }
   // 往state中存加工日期时间
   handleDataChange = (date, dateString) => {
+    // console.log(dateString)
     this.setState({
-      process_time: dateString
+      process_time: dateString + 'T00:00:00'
     })
   }
   render() {

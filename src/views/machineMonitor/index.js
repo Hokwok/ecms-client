@@ -4,6 +4,33 @@ import { Descriptions, Button } from 'antd'
 import './monitor.less'
 
 class Monitoring extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      eid: null
+    }
+  }
+
+  componentDidMount() {
+    // let eid = null
+    // var reg = new RegExp('-', 'g') // 去掉所有的'-'
+    // try {
+    //   eid = this.props.location.state
+    // } catch (error) {
+    //   console.log(error)
+    // }
+    // if (eid === undefined) {
+    //   window.location.href = '/login'
+    // }
+    // console.log(eid)
+    // this.setState({
+    //   eid: eid.eid.replace(reg, '')
+    // })
+    // console.log(eid.eid.replace(reg, ''))
+  }
+  changeMachine = () => {
+    this.props.history.replace('/app/machine_manage')
+  }
   render() {
     return (
       <div className='monitor_wrapper'>
@@ -52,7 +79,7 @@ class Monitoring extends Component {
             </Descriptions>
           </div>
           <div className='monitor_bottom_right'>
-            <Button type='primary'>切换设备</Button>
+            <Button onClick={ () => this.changeMachine()} type='primary'>切换设备</Button>
           </div>
         </div>
       </div>

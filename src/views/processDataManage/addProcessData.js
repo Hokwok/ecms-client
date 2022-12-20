@@ -1,81 +1,69 @@
 import React, { Component } from 'react'
-import { Modal, DatePicker, Form, Input, Select, Icon, Upload, Button, message } from 'antd'
+import { Modal, DatePicker, Form, Input, Select, message } from 'antd'
+import { experimentDataManageUrl } from '../../dataModule/UrlList'
+import { Model } from '../../dataModule/testBone'
 
+const model = new Model()
 const { Option } = Select
-const props = {
-  name: 'file',
-  action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-  headers: {
-    authorization: 'authorization-text'
-  },
-  onChange(info) {
-    if (info.file.status !== 'uploading') {
-      console.log(info.file, info.fileList)
-    }
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully`)
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`)
-    }
-  }
-}
 class AddProcessData extends Component {
   constructor(props) {
     super(props)
     this.state = {
       confirmLoading: false,
-      process_machine: '',
+      process_machine_id: '',
       process_method: '',
       process_tool: '',
-      expe_time: '',
-      note: ''
+      exp_date: '',
+      note: '无'
     }
   }
 
-  // fetch函数进行数据传输,fetch在reactjs中等同于 XMLHttpRequest
-  createNewProcessData(params) {
-    // const me = this
-    // model.fetch(
-    //   params,
-    //   ClientUrl,
-    //   'post',
-    //   function() {
-    //     me.props.cancel(false)
-    //     me.setState({
-    //         confirmLoading: false
-    //     })
-    //     const item = me.props.getParams()
-    //     me.props.getCurrentPage(item)
-    //     message.success('创建成功')
-    //   },
-    //   function() {
-    //     message.warning('发送数据失败，请重试')
-    //     setTimeout(() => {
-    //         me.setState({
-    //           confirmLoading: false
-    //         })
-    //       }, 2000)
-    //   },
-    //   this.props.whetherTest
-    // )
-  }
   // 添加后确定
   handleOk = () => {
     const { validateFields } = this.props.form
     validateFields() // 校验 格式等问题
     const params = {
-      process_machine: this.state.process_machine,
+      eid: this.state.process_machine_id,
       process_method: this.state.process_method,
       process_tool: this.state.process_tool,
-      expe_time: this.state.expe_time,
-      note: this.state.note
+      exp_date: this.state.exp_date,
+      exp_note: this.state.note
     }
     this.setState({
       confirmLoading: true
     })
-    console.log(params)
+    // console.log(params)
     this.createNewProcessData(params)
   }
+
+  createNewProcessData(params) {
+    const me = this
+    model.fetch(
+      params,
+      experimentDataManageUrl,
+      'post',
+      function(res) {
+        // me.props.changeCurrentPage(1)
+        me.props.cancel(false)
+        me.setState({
+          confirmLoading: false
+        })
+        me.props.afterCreateOrEdit()
+        message.success('添加实验数据成功')
+      },
+      function(error) {
+        console.log(error)
+        message.warning('添加实验数据失败，请重试')
+        setTimeout(() => {
+          me.setState({
+            confirmLoading: false
+          })
+        }, 2000)
+      },
+      false
+    )
+  }
+
   // 取消按钮事件
   handleCancel = () => {
     this.props.cancel()
@@ -88,15 +76,21 @@ class AddProcessData extends Component {
   }
   // 请选择加工机床
   selectMachineChange = (value) => {
+    var reg = new RegExp('-', 'g') // 去掉所有的'-'
     this.setState({
-      process_machine: value
+      process_machine_id: value.replace(reg, '')
     })
-    // console.log(value)
+  }
+  // 请选择加工方式
+  selectMethodChange = (value) => {
+    this.setState({
+      process_method: value
+    })
   }
   // 往state中存实验日期时间
   handleDataChange = (date, dateString) => {
     this.setState({
-      expe_time: dateString
+      exp_date: dateString
     })
   }
   render() {
@@ -113,7 +107,7 @@ class AddProcessData extends Component {
     return (
       <div>
         <Modal
-            title='添加加工数据'
+            title='添加实验数据'
             visible={this.props.addProcessDataVisible} // 对话框是否可见  这个地方通过this.props.Visible 接收到父组件传过来的Visible
             onOk={this.handleOk} // 点击确定回调
             confirmLoading={confirmLoading}
@@ -129,27 +123,36 @@ class AddProcessData extends Component {
                 {getFieldDecorator('process_machine', {
                   rules: [{ required: true, message: '请选择加工机床' }] // getFieldDecorator()  自定义校验方法,设置此项为必填项
                 })(
-                  <Select onChange={this.selectMachineChange}>
-                    <Option value='VMC850E-001'>VMC850E-001</Option>
-                    <Option value='VMC850E-002'>VMC850E-002</Option>
+                  <Select
+                    style={{ width: '250px' }}
+                    onSelect={ (string) => this.selectMachineChange(string) }
+                  >
+                      {this.props.machineList.map((item, index) => {
+                      return <Option key={ index } value={ item.eid }>{ `${item.equipment_type}:\xa0\xa0\xa0${item.equipment_code}-${item.equipment_name}` }</Option>
+                    })}
                   </Select>
                 )}
               </Form.Item>
 
               <Form.Item
-                  label='加工方式'
-                  colon
+                label='加工方式'
+                colon
               >
-                  {getFieldDecorator('process_method', {
-                  rules: [{ required: true, message: '请输入加工方式' }] // getFieldDecorator()  自定义校验方法,设置此项为必填项
+                {getFieldDecorator('process_method', {
+                rules: [{ required: true, message: '请选择加工方式' }] // getFieldDecorator()  自定义校验方法,设置此项为必填项
               })(
-                  <Input name='process_method' onChange={this.handleChange}/> // onChange	输入框内容变化时的回调 value	输入框内容
+                <Select onChange={this.selectMethodChange}>
+                  <Option value='0'>车削</Option>
+                  <Option value='1'>铣削</Option>
+                  <Option value='2'>钻削</Option>
+                  <Option value='3'>磨削</Option>
+                </Select>
               )}
               </Form.Item>
 
               <Form.Item
-                  label='加工刀具'
-                  colon
+                label='加工刀具'
+                colon
               >
                 {getFieldDecorator('process_tool', {
                   rules: [{ required: true, message: '请输入加工刀具' }] // getFieldDecorator()  自定义校验方法,设置此项为必填项
@@ -162,22 +165,11 @@ class AddProcessData extends Component {
                 label='实验时间'
                 colon
               >
-                {getFieldDecorator('expe_time', {
+                {getFieldDecorator('exp_date', {
                   rules: [{ type: 'object', required: true, message: '请选择实验时间!' }]
                 })(
                   <DatePicker onChange={this.handleDataChange} />
                 )}
-              </Form.Item>
-
-              <Form.Item
-                label='上传实验数据'
-                colon
-              >
-                <Upload {...props}>
-                  <Button>
-                    <Icon type='upload' />点击上传
-                  </Button>
-                </Upload>
               </Form.Item>
 
               <Form.Item
